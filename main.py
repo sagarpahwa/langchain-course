@@ -5,14 +5,19 @@ from langchain.agents import create_agent
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
-from langsmith import Client
 
-# client = Client()
+from prompt import SEARCH_ASSISTANT_SYSTEM_PROMPT
+from schemas import AgentResponse
+
 tools = [TavilySearch()]
 # llm = ChatOllama(temperature=0, model="deepseek-r1:8b")
 llm = ChatOpenAI(temperature=0, model="openai/gpt-4o-mini")
 agent = create_agent(
-    model=llm, tools=tools, system_prompt="You are a helpful search assistant."
+    model=llm,
+    tools=tools,
+    system_prompt=SEARCH_ASSISTANT_SYSTEM_PROMPT,
+    response_format=AgentResponse.model_json_schema(),
+    # response_format= AgentResponse,
 )
 
 if not os.environ.get("OPENAI_API_KEY"):
@@ -36,7 +41,7 @@ def main():
             ]
         }
     )
-    print(response["messages"][-1].content)
+    print(response["structured_response"])
 
 
 if __name__ == "__main__":
